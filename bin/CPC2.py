@@ -29,7 +29,7 @@ def __main():
 		return -1
 	else:
 		if not os.path.isfile(options.fasta):
-			sys.stderr.write("[ERROR] %s is not a file\n"%options.fasta)
+			sys.stderr.write("\n[ERROR] %s is not a file\n"%options.fasta)
 			return -1
 	if options.reverse:
 		strand = "-"
@@ -280,7 +280,7 @@ def calculate_potential(fasta,strand,outfile):
 	'''
 	calculate the coding probability using LIBSVM
 	'''
-	sys.stderr.write("[INFO] Predicting coding potential, please wait ...\n")
+	sys.stderr.write("\n[INFO] Predicting coding potential, please wait ...")
 	
 	'''
 		set directories and check depending tools existance
@@ -305,10 +305,10 @@ def calculate_potential(fasta,strand,outfile):
 	if exitstatus == 0:
 		rm_cmd = "rm -f " + outfile + '.feat'
 		commands.getstatusoutput(rm_cmd)
-		sys.stderr.write("[INFO] Running Done!\n")
+		sys.stderr.write("\n[INFO] Running Done!\n")
 		return 0
 	else:
-		sys.stderr.write("[ERROR] Prediction error!\n")
+		sys.stderr.write("\n[ERROR] Prediction error!\n")
 		return -1
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ def gz_file(fq_file,mode,level=6):
 			sys.stderr.write("\n[INFO] read file '%s'"%fq_file)
 			fq_fp = file(fq_file,mode)
 	except:
-		sys.stderr.write("\nError: Fail to IO file: %s"%(fq_file))
+		sys.stderr.write("\nError: Fail to IO file: %s\n"%(fq_file))
 		sys.exit(1)
 	return fq_fp
 
@@ -23,7 +23,7 @@ def bz2file(f):
 	if f.endswith("bz2"):
 		fz = bz2.BZ2File(f)
 	else:
-		sys.stderr.write("\nError: Fail to IO file: %s"%(f))
+		sys.stderr.write("\nError: Fail to IO file: %s\n"%(f))
 		sys.exit(1)
 	return fz
 
