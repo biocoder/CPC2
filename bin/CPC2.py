@@ -3,14 +3,13 @@
 import sys
 import os
 import re
-import commands
+import subprocess
 import time
 from optparse import OptionParser,OptionGroup
-
+import six
 import numpy as np
 from Bio.Seq import Seq
 from Bio.SeqUtils import ProtParam
-
 import seqio
 
 def __main():
@@ -29,7 +28,7 @@ def __main():
 		return -1
 	else:
 		if not os.path.isfile(options.fasta):
-			sys.stderr.write("\n[ERROR] %s is not a file\n"%options.fasta)
+			sys.stderr.write("[ERROR] %s is not a file\n"%options.fasta)
 			return -1
 	if options.reverse:
 		strand = "-"
@@ -78,7 +77,7 @@ class FindCDS:
 		'''
 		while True:
 			try: 
-				codon,index = triplet_got.next()
+				codon,index = next(triplet_got)
 			except StopIteration:
 				break 
 			if codon in starts and codon not in stops:
@@ -89,7 +88,7 @@ class FindCDS:
 				end_extension = False
 				while True:
 					try: 
-						codon,index = triplet_got.next()
+						codon,index = next(triplet_got)
 					except StopIteration:
 						end_extension = True
 						integrity = -1
@@ -245,9 +244,9 @@ def calculate_potential(fasta,strand,outfile):
 	'''
 	strinfoAmbiguous = re.compile("X|B|Z|J|U",re.I)
 	ptU = re.compile("U",re.I)
-	ftmp_feat = file(outfile + ".feat","w")
-	ftmp_svm = file(outfile + ".tmp.1","w")
-	ftmp_result = file(outfile,"w")
+	ftmp_feat = open(outfile + ".feat","w")
+	ftmp_svm = open(outfile + ".tmp.1","w")
+	ftmp_result = open(outfile,"w")
 	ftmp_result.write("\t".join(map(str,["#ID","transcript_length","peptide_length","Fickett_score","pI","ORF_integrity","coding_probability","label"]))+"\n")
 	ftmp_result.close()
 	fickett_obj = Fickett()
@@ -280,7 +279,7 @@ def calculate_potential(fasta,strand,outfile):
 	'''
 	calculate the coding probability using LIBSVM
 	'''
-	sys.stderr.write("\n[INFO] Predicting coding potential, please wait ...")
+	sys.stderr.write("[INFO] Predicting coding potential, please wait ...\n")
 	
 	'''
 		set directories and check depending tools existance
@@ -297,18 +296,18 @@ def calculate_potential(fasta,strand,outfile):
 	cmd = cmd + app_svm_predict + ' -b 1 -q ' + outfile + '.tmp.2 ' + data_dir + 'cpc2.model ' + outfile + '.tmp.1 &&'
 	cmd = cmd + 'awk -vOFS="\\t" \'{if ($1 == 1){print $2,"coding"} else if ($1 == 0){print $2,"noncoding"}}\' ' + outfile + '.tmp.1 > ' + outfile + '.tmp.2 &&'
 	cmd = cmd + 'paste ' + outfile + '.feat ' + outfile + '.tmp.2 >>' + outfile
-	(exitstatus, outtext) = commands.getstatusoutput(cmd)
+	(exitstatus, outtext) = subprocess.getstatusoutput(cmd)
 	os.system('rm -f ' + outfile + '.tmp.1 ' + outfile + '.tmp.2')
 	#	subprocess.call("Rscript " + outfile + '.r', shell=True)
 	#except:
 	#	pass
 	if exitstatus == 0:
 		rm_cmd = "rm -f " + outfile + '.feat'
-		commands.getstatusoutput(rm_cmd)
-		sys.stderr.write("\n[INFO] Running Done!\n")
+		subprocess.getstatusoutput(rm_cmd)
+		sys.stderr.write("[INFO] Running Done!\n")
 		return 0
 	else:
-		sys.stderr.write("\n[ERROR] Prediction error!\n")
+		sys.stderr.write("[ERROR] Prediction error!\n")
 		return -1
 
 if __name__ == "__main__":
